@@ -25,13 +25,20 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 echo "=== Step 2: Running Automated Unit Tests ==="
-                sh '''
-                    echo "Setting up Python test environment..."
-                    python3 -m pip install --upgrade pip
-                    python3 -m pip install -r requirements.txt
-                    echo "Executing test suite..."
-                    python3 -m pytest tests/ --verbose --junitxml=test-results.xml || python3 -m unittest discover -s tests -p "test_*.py"
-                '''
+                sh '''echo "Setting up Python virtual environment..."
+
+python3 -m venv .venv
+
+.venv/bin/python -m pip install --upgrade pip
+
+.venv/bin/python -m pip install -r requirements.txt
+
+echo "Running unit tests..."
+
+mkdir -p test-results
+
+.venv/bin/python -m pytest --junitxml=test-results/junit.xml
+                                   '''
             }
             post {
                 always {
