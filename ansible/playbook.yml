@@ -1,0 +1,26 @@
+---
+# ==============================================================================
+# Ansible Playbook: Deploy Campus Lab Resources Management Service
+# Requirement: Uses variables, handlers, and an Ansible role
+# ==============================================================================
+
+- name: Provision and Deploy Campus Lab Resources Microservice
+  hosts: lab_servers
+  become: yes
+  vars:
+    # Variable 1: Network port for the application service
+    app_port: 5000
+    # Variable 2: Service and binary name
+    app_name: campus-lab-api
+    # Variable 3: Target installation directory
+    app_dir: /opt/campus-lab-api
+    # Variable 4: Path to built release artifact from Component 1
+    artifact_src: "{{ playbook_dir }}/../dist/campus-lab-api-1.0.0.tar.gz"
+    # Variable 5: Execution user
+    app_user: root
+    # Variable 6: Deployment environment
+    app_env: production
+
+  roles:
+    # Role: campus_lab_app (Contains tasks, handlers, templates, and defaults)
+    - campus_lab_app

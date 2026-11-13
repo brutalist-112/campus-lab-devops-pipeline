@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: campus-lab-config
+  labels:
+    app: campus-lab-api
+    tier: backend
+data:
+  APP_PORT: "5000"
+  APP_ENV: "production"
+  CAMPUS_NAME: "Main Engineering Campus - Automated Resource Center"

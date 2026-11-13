@@ -1,0 +1,64 @@
+---
+# Tasks for role campus_lab_app
+
+- name: Update apt package cache and install required runtime dependencies
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+      - tar
+      - curl
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Create application installation directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ app_user }}"
+
+- name: Extract built release artifact onto host server
+  unarchive:
+    src: "{{ artifact_src }}"
+    dest: "{{ app_dir }}"
+    remote_src: no
+  notify: restart campus-lab-api
+
+- name: Install Python dependencies from requirements.txt
+  pip:
+    requirements: "{{ app_dir }}/requirements.txt"
+    executable: pip3
+  notify: restart campus-lab-api
+
+- name: Deploy systemd service configuration file from Jinja2 template
+  template:
+    src: campus-lab.service.j2
+    dest: "/etc/systemd/system/{{ app_name }}.service"
+    mode: '0644'
+  notify: restart campus-lab-api
+
+- name: Flush handlers immediately to restart service if configuration changed
+  meta: flush_handlers
+
+- name: Ensure campus-lab-api service is running and enabled on boot
+  service:
+    name: "{{ app_name }}"
+    state: started
+    enabled: yes
+
+- name: Verify application health endpoint is responding
+  uri:
+    url: "http://127.0.0.1:{{ app_port }}/health"
+    status_code: 200
+    return_content: yes
+  register: health_check_result
+  retries: 5
+  delay: 2
+  until: health_check_result.status == 200
+
+- name: Display health verification status
+  debug:
+    msg: "Campus Lab API is healthy and operational: {{ health_check_result.json }}"

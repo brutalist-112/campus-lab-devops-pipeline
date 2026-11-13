@@ -1,0 +1,16 @@
+[Unit]
+Description=Campus Lab Resources Management REST API
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+WorkingDirectory={{ app_dir }}
+Environment="APP_PORT={{ app_port }}"
+Environment="APP_ENV={{ app_env }}"
+ExecStart=/usr/bin/python3 {{ app_dir }}/src/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

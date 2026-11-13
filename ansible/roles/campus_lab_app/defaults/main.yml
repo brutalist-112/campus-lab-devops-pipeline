@@ -1,0 +1,7 @@
+---
+# Default variables for role campus_lab_app
+app_name: campus-lab-api
+app_port: 5000
+app_dir: /opt/campus-lab-api
+app_user: root
+app_env: production

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campus-lab-deployment
+  labels:
+    app: campus-lab-api
+    tier: backend
+spec:
+  # Rubric Requirement: Start with 3 replicas
+  replicas: 3
+  selector:
+    matchLabels:
+      app: campus-lab-api
+  template:
+    metadata:
+      labels:
+        app: campus-lab-api
+        tier: backend
+    spec:
+      containers:
+        - name: campus-lab-container
+          image: campus-lab-api:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+
+          # Deployment Enhancement 1: Decoupled settings via ConfigMap
+          envFrom:
+            - configMapRef:
+                name: campus-lab-config
+
+          # Deployment Enhancement 2: Liveness & Readiness Probes
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"

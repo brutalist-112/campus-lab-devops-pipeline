@@ -1,0 +1,11 @@
+---
+# Handlers for role campus_lab_app
+# Handlers run only when notified by tasks reporting 'changed' state
+
+- name: restart campus-lab-api
+  service:
+    name: "{{ app_name }}"
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  listen: "restart campus-lab-api"
